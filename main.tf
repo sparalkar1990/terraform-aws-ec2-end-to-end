@@ -1,3 +1,14 @@
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
 
@@ -15,8 +26,9 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_security_group" "ec2_sg" {
-  description = "EC2 Security Group"
+  description = "Allow HTTP and SSH"
   name        = "${var.environment}-${var.security_group_name}"
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
     description = "HTTP"
@@ -48,8 +60,10 @@ resource "aws_security_group" "ec2_sg" {
 resource "aws_instance" "web" {
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
+  subnet_id                   = data.aws_subnets.default.ids[0]
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   associate_public_ip_address = true
+
 
   user_data = <<-EOF
               #!/bin/bash
