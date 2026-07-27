@@ -25,3 +25,13 @@ variable "aws_ec2_instance_name" {
   description = "Name of EC2 Instance"
   type        = string
 }
+
+variable "s3_bucket_name" {
+  description = "S3 Bucket for state backend"
+  type        = string
+}
+
+variable "dynamodb_table" {
+  description = "DynamoDB Table for State locking"
+  type        = string
+}
